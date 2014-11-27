@@ -1,0 +1,13 @@
+.leftDiv {
+	float: left;
+}
+.leftDiv div, .br {
+	clear: both;
+}
+#mask {
+	display:none;
+}
+canvas {
+	border-style: solid;
+	border-width: 1px;
+}

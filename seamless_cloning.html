@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Seamless cloning</title>
+		<script type="text/javascript" src="seamless_cloning.js"></script>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<p>
+			<ul>
+				<li>Choose a source image</li>
+				<li>Click on the source image to choose what you want to copy</li>
+				<li>Choose a destination image</li>
+				<li>Click on the destination image to choose the position of the copied part</li>
+				<li>Use + key or - key in order to adjust the size of the copied part</li>
+				<li>Click on "run" button</li>
+			</ul>
+		</p>
+		<div class="leftDiv" id="source_wrapper">
+			<canvas id="source"></canvas>
+			<div>
+				source: <input id="source_file" type="file" accept="image/*">
+			</div>
+		</div>
+		<div class="leftDiv" id="destination_wrapper">
+			<canvas id="destination"></canvas>
+			<div>
+				destination: <input id="destination_file" type="file" accept="image/*">
+			</div>
+		</div>
+		<div class="leftDiv" id="destination_wrapper">
+			<canvas id="result"></canvas>
+			<div>
+				<input id="run" type="button" value="run">
+				<input id="mix_grad" type="checkbox"><label for="mix_grad">mix gradient</label>
+			</div>
+		</div>
+		<div class="br">
+			image size: <input id="size" type="range" min="200" max="800" step="50" value="300">
+		</div>
+		<div class="br">
+			time elapsed: <input id="time" type="text" readonly value="">
+		</div>
+	</body>
+</html>
