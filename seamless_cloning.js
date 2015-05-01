@@ -176,19 +176,46 @@ function loadImgEvt(evt, canvas) {
 	reader.onload = (function(aImg, canvas) { return function(e) {
 		aImg.src = e.target.result;
 		aImg.onload = (function(aImg, canvas) { return function(e) {
-			var h = aImg.height;
-			var w = aImg.width;
+            EXIF.getData(aImg, (function(canvas) { return function() {
+                var orientation = EXIF.getTag(this, "Orientation");
+			    var w = this.width;
+			    var h = this.height;
+                switch(orientation) {
+                case 2:
+                    var aImg = flipHorizontally(this);
+                    break;
+                case 3:
+                    var aImg = rotateImage(this, 180);
+                    break;
+                case 4:
+                    var aImg = flipVertically(this);
+                    break;
+                case 6:
+                    var aImg = rotateImage(this, 90);
+                    break;
+                case 8:
+                    var aImg = rotateImage(this, 270);
+                    break;
+                default:
+                    var aImg = getImageData(this);
+                    break;
+                }
+			    var h = aImg.height;
+			    var w = aImg.width;
 			
-			// Resize the image
-			if(h > w) {
-				h = size;
-				w = Math.round(size*w/aImg.height);
-			} else {
-				w = size;
-				h = Math.round(size*h/aImg.width);
-			}	
-			canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);	
-			canvas.getContext("2d").drawImage(aImg, 0, 0, w, h);
+			    // Resize the image
+			    if(h > w) {
+				    h = size;
+				    w = Math.round(size*w/aImg.height);
+			    } else {
+				    w = size;
+				    h = Math.round(size*h/aImg.width);
+			    }
+			    aImg = resizeImg(aImg, w, h);
+			    canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+                canvas.getContext("2d").putImageData(aImg, 0, 0);
+                //canvas.getContext("2d").drawImage(aImg, 0, 0, w, h);
+            };})(canvas));
 		};})(aImg, canvas);
 	};})(img, canvas);
 	reader.readAsDataURL(f);
@@ -205,6 +232,79 @@ function resetMask() {
 		mask_pixels.data[i] = 0;
 	}
 	mask.getContext('2d').putImageData(mask_pixels, 0, 0);
+}
+function flipHorizontally(img) {
+    var w = img.width;
+    var h = img.height;
+    var tmp = document.createElement('canvas');
+	tmp.width = w*2;
+	tmp.height = h;
+    var ctx = tmp.getContext('2d');
+
+    ctx.translate(w, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(img, 0, 0, w, h);
+	return ctx.getImageData(0, 0, w, h);
+}
+function flipVertically(img) {
+    var w = img.width;
+    var h = img.height;
+    var tmp = document.createElement('canvas');
+	tmp.width = w;
+	tmp.height = h*2;
+    var ctx = tmp.getContext('2d');
+
+    ctx.translate(0, h);
+    ctx.scale(1, -1);
+    ctx.drawImage(img, 0, 0, w, h);
+	return ctx.getImageData(0, 0, w, h);
+}
+
+// Rotate image
+function rotateImage(img, degrees) {
+	// Create a canvas with the source image
+	var radians = degrees*Math.PI/180;
+	var tmp = document.createElement('canvas');
+    var w = img.width;
+    var h = img.height;
+    var new_w = Math.abs(Math.floor(w*Math.cos(radians)+h*Math.sin(radians)));
+    var new_h = Math.abs(Math.floor(w*Math.sin(radians)-h*Math.cos(radians)));
+	tmp.width = Math.max(w, h);
+	tmp.height = Math.max(w, h);
+	var ctx = tmp.getContext('2d');
+	
+	ctx.translate(new_w/2, new_h/2);
+    ctx.rotate(radians);
+    ctx.translate(-w/2, -h/2);
+    ctx.drawImage(img, 0, 0, w, h);
+    
+	return ctx.getImageData(0, 0, new_w, new_h);
+}
+
+function getImageData(img) {
+    var tmp = document.createElement('canvas');
+	tmp.width = img.width;
+	tmp.height = img.height;
+    var ctx = tmp.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    return ctx.getImageData(0, 0, img.width, img.height);
+}
+function resizeImg(img, w, h) {
+	// Create a canvas with the source image
+	var tmp = document.createElement('canvas');
+	var ctx = tmp.getContext('2d');
+	tmp.width = img.width;
+	tmp.height = img.height;
+	ctx.putImageData(img, 0, 0);
+
+	// Create a second canvas with the new size
+	var tmp2 = document.createElement('canvas');
+	var ctx2 = tmp2.getContext('2d');
+	tmp2.width = w;
+	tmp2.height = h;
+	// Draw the previous canvas in the new one resized
+	ctx2.drawImage(tmp, 0, 0, w, h);
+	return ctx2.getImageData(0, 0, tmp2.width, tmp2.height, 0, 0, tmp.width, tmp.height);
 }
 // Scale image by a factor
 function scaleImage(img, factor) {
@@ -303,7 +403,7 @@ function destClick(evt) {
 }
 // This function resizes all canvas with the value of the "range" input and recreates the mask too
 function changeSize() {
-	size = document.getElementById('size').value;
+	size = parseInt(document.getElementById('size').value, 10);
 
 	document.getElementById('result').width = size;
 	document.getElementById('result').height = size;

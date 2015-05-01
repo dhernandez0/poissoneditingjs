@@ -11,3 +11,11 @@ canvas {
 	border-style: solid;
 	border-width: 1px;
 }
+a {
+	color: black;
+}
+body {
+	line-height: 25px;
+	padding-top:20px;
+	font-family: 'Fauna One', serif;
+}
