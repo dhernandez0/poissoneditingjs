@@ -190,8 +190,16 @@ function loadImgEvt(evt, canvas) {
                 case 4:
                     var aImg = flipVertically(this);
                     break;
+                case 5:
+                    var aImg = rotateImage(this, -90);
+                    var aImg = flipVertically(getCanvasWrapper(aImg));
+                    break;
                 case 6:
                     var aImg = rotateImage(this, 90);
+                    break;
+                case 7:
+                    var aImg = rotateImage(this, 90);
+                    var aImg = flipVertically(getCanvasWrapper(aImg));
                     break;
                 case 8:
                     var aImg = rotateImage(this, 270);
@@ -279,6 +287,15 @@ function rotateImage(img, degrees) {
     ctx.drawImage(img, 0, 0, w, h);
     
 	return ctx.getImageData(0, 0, new_w, new_h);
+}
+
+function getCanvasWrapper(img) {
+    var tmp = document.createElement('canvas');
+	tmp.width = img.width;
+	tmp.height = img.height;
+    var ctx = tmp.getContext('2d');
+    ctx.putImageData(img, 0, 0);
+    return tmp;
 }
 
 function getImageData(img) {
