@@ -1,4 +1,4 @@
-poissoneditingjs
+Poisson Editing in javascript
 ================
 
 Poisson Editing implementation (seamless cloning).
